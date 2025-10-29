@@ -5,7 +5,10 @@ pandas
 requests
 python-multipart
 python-jose[cryptography]
-
+datetime
+contextlib
+models
+auth
 
 fastapi
 uvicorn[standard]
@@ -16,10 +19,11 @@ passlib[bcrypt]              # For password hashing
 python-multipart             # For handling form-data (e.g. login forms)
 bcrypt                       # Hash algorithm backend for passlib
 
-
+pymongo
 
 pydantic                    
-
+random
+typing
 
 
 python-dotenv                # For loading environment variables
