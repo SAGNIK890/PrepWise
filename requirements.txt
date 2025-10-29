@@ -6,3 +6,25 @@ requests
 python-multipart
 python-jose[cryptography]
 
+
+fastapi
+uvicorn[standard]
+
+
+python-jose[cryptography]    # For JWT token encoding/decoding
+passlib[bcrypt]              # For password hashing
+python-multipart             # For handling form-data (e.g. login forms)
+bcrypt                       # Hash algorithm backend for passlib
+
+
+SQLAlchemy                   # ORM
+pydantic                     # Data validation and schemas
+alembic                      # DB migrations (optional, if used)
+sqlite3                      # If using SQLite (skip if not needed)
+
+
+python-dotenv                # For loading environment variables
+
+
+requests                     # For making API calls
+email-validator               # Used if you validate emails in user model
