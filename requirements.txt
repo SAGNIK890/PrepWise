@@ -21,10 +21,9 @@ bcrypt                       # Hash algorithm backend for passlib
 pymongo
 
 pydantic                    
-random
-typing
 
 
-python-dotenv                # For loading environment variables
+
+
 
 
