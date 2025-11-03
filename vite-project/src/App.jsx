@@ -27,7 +27,7 @@ function App() {
     formData.append("password", password);
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/token", {
+      const response = await fetch("https://prepwise-pbni.onrender.com/token", {
         method: "POST",
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
@@ -52,7 +52,7 @@ function App() {
   const handleSignup = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch("http://127.0.0.1:8000/signup", {
+      const response = await fetch("https://prepwise-pbni.onrender.com/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -90,7 +90,7 @@ function App() {
     const data = { age, height, weight, dietType, caste, diseases };
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/analyze", {
+      const response = await fetch("https://prepwise-pbni.onrender.com/analyze", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
