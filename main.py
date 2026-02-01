@@ -144,18 +144,18 @@ def normalize_keys(doc: dict) -> dict:
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Connect to MongoDB at startup and store in app.state.db"""
-    print("Connecting to MongoDB...")
-    
     MONGO_URI = os.getenv("MONGO_URI")
     DB_NAME = os.getenv("DB_NAME", "Prepwise")
-    
+
     if not MONGO_URI:
-        raise RuntimeError("MONGO_URI environment variable is not set!")
+        print("❌ MONGO_URI not set in environment variables!")
+        app.state.db = None
+        yield
+        return
 
     try:
-        client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=10000)
+        client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=10000, tls=True)
         db = client[DB_NAME]
-        # Test the connection
         client.admin.command("ping")
         app.state.db = db
         print(f"✅ Connected to MongoDB database '{DB_NAME}'")
@@ -163,12 +163,13 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         print("❌ MongoDB connection failed:", e)
         app.state.db = None
-    
+
     yield
-    
-    print("Shutting down PrepWise backend…")
+
     if app.state.db:
         client.close()
+        print("Shutting down MongoDB connection…")
+
 
 
 app = FastAPI(title="PrepWise Backend", lifespan=lifespan)
@@ -277,8 +278,17 @@ def analyze(
 @app.get("/ping")
 def ping():
     if app.state.db is None:
-        return {"status": "error", "db": "not connected"}
-    return {"status": "ok", "db": "connected"}
+        return {
+            "status": "error",
+            "db": "not connected",
+            "message": "Check MONGO_URI and network access!"
+        }
+    try:
+        app.state.db.command("ping")
+        return {"status": "ok", "db": "connected"}
+    except Exception as e:
+        return {"status": "error", "db": "not connected", "error": str(e)}
+
 
 
 # BMI utils
