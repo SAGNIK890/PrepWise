@@ -171,6 +171,15 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="PrepWise Backend", lifespan=lifespan)
 
+@app.get("/")
+def root():
+    return {
+        "message": "PrepWise backend is live 🚀",
+        "docs": "/docs",
+        "health": "/ping"
+    }
+
+
 @app.post("/token", response_model=Token)
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
     user = authenticate_user(db, form_data.username, form_data.password)
@@ -265,7 +274,10 @@ def analyze(
 # Ping
 @app.get("/ping")
 def ping():
-    return {"status": "ok", "source": "MongoDB"}
+    if app.state.db is None:
+        return {"status": "error", "db": "not connected"}
+    return {"status": "ok", "db": "connected"}
+
 
 # BMI utils
 def calculate_bmi(weight: float, height: float) -> float:
