@@ -4,13 +4,20 @@ from datetime import datetime
 from dotenv import load_dotenv
 from auth import get_password_hash
 
+load_dotenv()  # Load environment variables
 
-load_dotenv()
+# Correct way to get Mongo URI and DB name
+MONGO_URI = os.getenv("MONGO_URI")
+DB_NAME = os.getenv("DB_NAME", "Prepwise")
 
-client = MongoClient(os.getenv("mongodb+srv://sandiptabhattacharyya2345_db_user:wYlufCz8C1oyhrAu@cluster0.scnlg38.mongodb.net/Prepwise?appName=Cluster0"))
-db = client[os.getenv("DB_NAME", "Prepwise")]
+if not MONGO_URI:
+    raise RuntimeError("MONGO_URI environment variable not set!")
 
 def seed():
+    client = MongoClient(MONGO_URI)  # Only here, not at top-level
+    db = client[DB_NAME]
+
+    # Clear old data
     db.users.delete_many({})
     db.recipes.delete_many({})
     db.ingredients.delete_many({})
@@ -18,14 +25,16 @@ def seed():
     db.agents.delete_many({})
     db.feedback.delete_many({})
 
-    user_id = db.users.insert_one({
+    # Insert test user
+    db.users.insert_one({
         "name": "Test User",
         "email": "testuser@prepwise.com",
         "password_hash": get_password_hash("demo123"),
         "preferences": {"diet": "vegan", "budget_per_week": 500},
         "created_at": datetime.utcnow()
-    }).inserted_id
+    })
 
+    # Insert some recipes
     db.recipes.insert_many([
         {"title": "Lentil Curry", "ingredients": [], "instructions": "Boil and spice lentils.", "diet_tags": ["vegan"], "nutrition": {"calories": 300}, "cost_estimate": 50},
         {"title": "Oats Bowl", "ingredients": [], "instructions": "Mix oats with fruits.", "diet_tags": ["vegetarian"], "nutrition": {"calories": 250}, "cost_estimate": 30}
@@ -33,5 +42,6 @@ def seed():
 
     print("✅ Database seeded successfully!")
 
+# Only run seed when called directly
 if __name__ == "__main__":
     seed()
