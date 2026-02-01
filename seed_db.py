@@ -1,9 +1,14 @@
-
+import os
 from pymongo import MongoClient
 from datetime import datetime
+from dotenv import load_dotenv
+from auth import get_password_hash
 
-client = MongoClient("mongodb://localhost:27017")
-db = client["prepwise"]
+
+load_dotenv()
+
+client = MongoClient(os.getenv("mongodb+srv://sandiptabhattacharyya2345_db_user:wYlufCz8C1oyhrAu@cluster0.scnlg38.mongodb.net/Prepwise?appName=Cluster0"))
+db = client[os.getenv("DB_NAME", "Prepwise")]
 
 def seed():
     db.users.delete_many({})
@@ -16,7 +21,7 @@ def seed():
     user_id = db.users.insert_one({
         "name": "Test User",
         "email": "testuser@prepwise.com",
-        "password_hash": "demo123",
+        "password_hash": get_password_hash("demo123"),
         "preferences": {"diet": "vegan", "budget_per_week": 500},
         "created_at": datetime.utcnow()
     }).inserted_id

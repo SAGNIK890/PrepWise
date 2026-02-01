@@ -1,4 +1,5 @@
-import random
+import random 
+import os
 from typing import  Optional
 from fastapi import FastAPI, HTTPException,  Header , Depends , status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
@@ -9,28 +10,20 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from contextlib import asynccontextmanager
 from pymongo import MongoClient
+from dotenv import load_dotenv
 import uvicorn
 from models import AnalyzeRequest
 from auth import verify_password, create_access_token 
 
+load_dotenv()
 
-SECRET_KEY = "d4f3a9b2c1e68547f9a2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8091a2b3c4d5e"
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+SECRET_KEY = os.getenv("SECRET_KEY")
+ALGORITHM = os.getenv("ALGORITHM", "HS256")
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 30))
 
+MONGO_URI = os.getenv("MONGO_URI")
+DB_NAME = os.getenv("DB_NAME")
 
-
-MONGO_URI = "mongodb://localhost:27017/"
-DB_NAME = "Prepwise"
-
-
-class AnalyzeRequest(BaseModel):
-    age: int
-    height: float
-    weight: float
-    dietType: str
-    caste: Optional[str] = ""
-    diseases: Optional[str] = ""
 
 class Token(BaseModel):
     access_token: str
@@ -306,7 +299,5 @@ def get_meals(collection, field_prefix: str, count: int = 3):
     return result
 
 
-if __name__ == "__main__":
-    print("PrepWise API running at http://127.0.0.1:8000 …")
-    uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
+
 

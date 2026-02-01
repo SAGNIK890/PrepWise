@@ -1,11 +1,15 @@
-
+import os
 from jose import JWTError, jwt
 from datetime import datetime, timedelta
+from dotenv import load_dotenv
 from passlib.context import CryptContext
 
-SECRET_KEY = "supersecretkey"
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24
+load_dotenv()
+
+SECRET_KEY = os.getenv("SECRET_KEY")
+ALGORITHM = os.getenv("ALGORITHM", "HS256")
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 60*24))
+
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
