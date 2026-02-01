@@ -141,18 +141,33 @@ def normalize_keys(doc: dict) -> dict:
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    print("Connecting to MongoDB localhost:27017 …")
+    """Connect to MongoDB at startup and store in app.state.db"""
+    print("Connecting to MongoDB...")
+    
+    MONGO_URI = os.getenv("MONGO_URI")
+    DB_NAME = os.getenv("DB_NAME", "Prepwise")
+    
+    if not MONGO_URI:
+        raise RuntimeError("MONGO_URI environment variable is not set!")
+
     try:
-        client = MongoClient(MONGO_URI)
+        client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=10000)
         db = client[DB_NAME]
+        # Test the connection
+        client.admin.command("ping")
         app.state.db = db
-        print(f"Connected to MongoDB database '{DB_NAME}'")
+        print(f"✅ Connected to MongoDB database '{DB_NAME}'")
         print("Collections:", db.list_collection_names())
     except Exception as e:
-        print("MongoDB connection failed:", e)
+        print("❌ MongoDB connection failed:", e)
         app.state.db = None
+    
     yield
+    
     print("Shutting down PrepWise backend…")
+    if app.state.db:
+        client.close()
+
 
 app = FastAPI(title="PrepWise Backend", lifespan=lifespan)
 
